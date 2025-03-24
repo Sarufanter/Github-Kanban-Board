@@ -1,29 +1,54 @@
-import React from 'react'
-import {Issue} from '@/app/types/types'
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Issue } from "../types/types";
 
-type IssueCardProps = {
-    issue: Issue;
-};
+export default function IssueCard({ issue }: { issue: Issue }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: issue.id });
 
-function IssueCard({ issue }: IssueCardProps) {
-
-    const createdAt = new Date(issue.created_at);
-    const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  const createdAt = new Date(issue.created_at);
+  const now = new Date();
+  const diffInDays = Math.floor(
+    (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
   return (
-    <li key={issue.id} className="m-2 p-2 border rounded bg-gray-100">
-            <a href={issue.html_url} target="_blank" rel="noopener noreferrer">
-              {issue.title || "Title"}
-            </a>
-            <p>
-              #{issue.number || "?"} | {diffInDays} days ago
-              <br />
-              <a href={issue.user.html_url}>{issue.user?.login || "Anonim"} </a>
-              | Comments:{" "} {issue.comments || 0}
-            </p>
-          </li>
-  )
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`cursor-grab touch-none rounded border bg-white p-3 active:cursor-grabbing dark:border-gray-700 dark:bg-gray-700 ${
+        isDragging ? "z-10 opacity-50 shadow-md" : ""
+      }`}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <a href={issue.html_url} target="_blank" rel="noopener noreferrer">
+          {issue.title}
+        </a>
+        <div>
+          #{issue.number || "?"} | {diffInDays} days ago
+          <br />
+          <a
+            href={issue.user.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {issue.user?.login || "No name"}
+          </a>{" "}
+          | Comments: {issue.comments || 0}
+        </div>
+      </div>
+    </li>
+  );
 }
-
-export default IssueCard

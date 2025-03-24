@@ -2,6 +2,8 @@ import KanbanBoard from "./components/KanbanBoard";
 
 export default function Home() {
   return (
-    <KanbanBoard/>
+    <div className=" bg-gray-50">
+      <KanbanBoard />
+    </div>
   );
 }
