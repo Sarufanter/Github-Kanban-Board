@@ -1,6 +1,6 @@
 import { Issue } from "../types/types";
 
-export default function ItemOverlay({ issue }: { issue:Issue | null}) {
+export default function IssueOverlay({ issue }: { issue:Issue | null}) {
   
   if (!issue) return null;
 
