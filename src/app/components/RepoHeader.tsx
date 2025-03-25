@@ -1,31 +1,23 @@
 "use client";
 
-interface Repo {
-  owner: {
-    login: string;
-    html_url: string;
-  };
-  name: string;
-  html_url: string;
-  stargazers_count: number;
-}
+import { RootState } from "../store/store";
+import { useSelector } from "react-redux";
 
-interface RepoHeaderProps {
-  repo: Repo | null;
-}
 
-const RepoHeader: React.FC<RepoHeaderProps> = ({ repo }) => {
-  if (!repo) return null; 
+const RepoHeader = () => {
+  const repo = useSelector((state: RootState) => state.issues.repo);
+
+  if (!repo || !repo.owner) return null;
 
   return (
     <div className="repo-header bg-gray-100 p-4 rounded-md flex items-center gap-2 dark:bg-gray-800">
       <a
-        href={repo.owner.html_url}
+        href={repo.owner?.html_url}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 dark:text-blue-400 font-semibold"
       >
-        {repo.owner.login}
+        {repo.owner?.login}
       </a>
       <span>&gt;</span>
       <a

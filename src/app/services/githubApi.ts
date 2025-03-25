@@ -9,6 +9,8 @@ export const fetchIssues = async (repoUrl: string) => {
     }
     const [_, repoOwner, repoName] = match;
 
+    
+
     const response = await axios.get(
       `${GITHUB_API_URL}/repos/${repoOwner}/${repoName}/issues`, {
         params: { state: "all", per_page: 50 }

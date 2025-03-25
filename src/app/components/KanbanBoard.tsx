@@ -20,8 +20,10 @@ import {
 import DroppableContainer from './DroppableContainer';
 import  ItemOverlay  from './IssueOverlay';
 import IssueLoader from './IssueLoader'
-import { Container } from '../types/types'
+import { Container, Repo } from '../types/types'
 import RepoHeader from './RepoHeader'
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 
 
@@ -29,19 +31,12 @@ import RepoHeader from './RepoHeader'
 export default function KanbanBoard() {
 
   
-  const [containers, setContainers] = useState<Container[]>([
-  ])
-  void setContainers
+  const { containers, loading, error } = useSelector(
+    (state: RootState) => state.issues
+  );
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   void activeId
-
-  const [repo, setRepo] = useState<{
-    owner: { login: string; html_url: string };
-    name: string;
-    html_url: string;
-    stargazers_count: number;
-  } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -96,12 +91,13 @@ export default function KanbanBoard() {
 
     setContainers((prev) => {
       const activeContainer = prev.find((c) => c.id === activeContainerId)
-      if (!activeContainer) return prev
+      if (!activeContainer) return [...prev]
 
       const activeItem = activeContainer.items.find(
         (item) => item.id === activeId,
       )
-      if (!activeId) return
+      if (!activeItem) return [...prev];
+      
 
       const newContainers = prev.map((container) => {
         if (container.id === activeContainerId) {
@@ -198,8 +194,8 @@ export default function KanbanBoard() {
     <div className="mx-auto max-w-[1400px] py-8 bg-white">
       <h2 className="mb-4 text-xl font-bold dark:text-white">Kanban Board</h2>
       
-      <IssueLoader setContainers={setContainers} setRepo={setRepo}/>
-      {repo && <RepoHeader repo={repo} />}
+      <IssueLoader/>
+      <RepoHeader />
       <DndContext
         sensors={sensors}
         onDragCancel={handleDragCancel}
