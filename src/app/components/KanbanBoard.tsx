@@ -1,5 +1,4 @@
 'use client'
-import { useState } from 'react'
 import {
   DndContext,
   DragCancelEvent,
@@ -14,29 +13,25 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import {
-  arrayMove,
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 import DroppableContainer from './DroppableContainer';
 import  ItemOverlay  from './IssueOverlay';
 import IssueLoader from './IssueLoader'
-import { Container, Repo } from '../types/types'
 import RepoHeader from './RepoHeader'
-import { useSelector } from 'react-redux';
-import { RootState } from '../store/store';
-
-
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store/store';
+import { dragEnd, dragOver, setActiveId } from '../store/slices/issuesSlice';
 
 
 export default function KanbanBoard() {
 
-  
+  const dispatch = useDispatch<AppDispatch>()
   const { containers, loading, error } = useSelector(
     (state: RootState) => state.issues
   );
 
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
-  void activeId
+  const activeId = useSelector((state: RootState) => state.issues.activeId);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -49,137 +44,31 @@ export default function KanbanBoard() {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   )
-
-  function findContainerId(
-    itemId: UniqueIdentifier,
-  ): UniqueIdentifier | undefined {
-    if (containers.some((container) => container.id === itemId)) {
-      return itemId
-    }
-
-    return containers.find((container) =>
-      container.items.some((item) => item.id === itemId),
-    )?.id
-  }
-
   function handleDragStart(event: DragStartEvent) {
-    setActiveId(event.active.id)
+    dispatch(setActiveId((event.active.id)))
   }
 
   function handleDragCancel(event: DragCancelEvent) {
     void event
-    setActiveId(null)
+    dispatch(setActiveId(null))
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event
-
-    if (!over) return
-
-    const activeId = active.id
-    const overId = over.id
-
-    const activeContainerId = findContainerId(activeId)
-    const overContainerId = findContainerId(overId)
-
-    if (!activeContainerId || !overContainerId) return
-
-    if (activeContainerId === overContainerId && activeId !== overId) {
-      return
+    const { active, over } = event    
+    if (active && over) {
+    dispatch(dragOver({ activeId: active.id, overId: over.id }));
     }
-    if (activeContainerId === overContainerId) return
-
-    setContainers((prev) => {
-      const activeContainer = prev.find((c) => c.id === activeContainerId)
-      if (!activeContainer) return [...prev]
-
-      const activeItem = activeContainer.items.find(
-        (item) => item.id === activeId,
-      )
-      if (!activeItem) return [...prev];
-      
-
-      const newContainers = prev.map((container) => {
-        if (container.id === activeContainerId) {
-          return {
-            ...container,
-            items: container.items.filter((item) => item.id !== activeId),
-          }
-        }
-
-        if (container.id === overContainerId) {
-          if (overId === overContainerId) {
-            return {
-              ...container,
-              items: [...container.items, activeItem],
-            }
-          }
-
-          const overItemIndex = container.items.findIndex(
-            (item) => item.id === overId,
-          )
-          if (overItemIndex !== -1) {
-            return {
-              ...container,
-              items: [
-                ...container.items.slice(0, overItemIndex + 1),
-                activeItem,
-                ...container.items.slice(overItemIndex + 1),
-              ],
-            }
-          }
-        }
-
-        return container
-      })
-      return newContainers
-    })
   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over) {
-      setActiveId(null)
+      dispatch(setActiveId(null))
       return
     }
-    const activeContainerId = findContainerId(active.id)
-    const overContainerId = findContainerId(over.id)
-
-    if (!activeContainerId || !overContainerId) {
-      setActiveId(null)
-      return
+    if (event.active && event.over) {
+    dispatch(dragEnd({ activeId: active.id, overId: over.id}));
     }
-    if (activeContainerId === overContainerId && active.id !== over.id) {
-      const containerIndex = containers.findIndex(
-        (c) => c.id === activeContainerId,
-      )
-
-      if (containerIndex === -1) {
-        setActiveId(null)
-        return
-      }
-
-      const container = containers[containerIndex]
-      const activeIndex = container.items.findIndex(
-        (item) => item.id === active.id,
-      )
-      const overIndex = container.items.findIndex((item) => item.id === over.id)
-
-      if (activeIndex !== -1 && overIndex !== -1) {
-        const newItems = arrayMove(container.items, activeIndex, overIndex)
-
-        setContainers((containers) => {
-          return containers.map((c, i) => {
-            if (i === containerIndex) {
-              return { ...c, items: newItems }
-            }
-            return c
-          })
-        })
-      }
-    }
-
-    setActiveId(null)
   }
   const getActiveIssue = () => {
     for (const container of containers) {
@@ -189,7 +78,6 @@ export default function KanbanBoard() {
     return null;
   };
 
-  
   return (
     <div className="mx-auto max-w-[1400px] py-8 bg-white">
       <h2 className="mb-4 text-xl font-bold dark:text-white">Kanban Board</h2>

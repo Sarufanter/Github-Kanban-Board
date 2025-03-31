@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchIssues } from "../../services/githubApi";
 import { Issue, Container } from "../../types/types";
+import { UniqueIdentifier } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 
 interface IssuesState {
   repo: {
@@ -12,19 +14,16 @@ interface IssuesState {
   containers: Container[];
   loading: boolean;
   error: string | null;
+  activeId: UniqueIdentifier | null;
 }
-interface Repo {
-    owner: { login: string; html_url: string };
-    name: string;
-    html_url: string;
-    stargazers_count: number;
-  }
+
 // Початковий стан
 const initialState: IssuesState = {
   repo: null,
   containers: [],
   loading: false,
   error: null,
+  activeId: null,
 };
 
 // Async Thunk для завантаження issues
@@ -39,6 +38,9 @@ export const loadIssues = createAsyncThunk(
       );
       const repoData = await repoResponse.json();
 
+      if (repoData.message) {
+        return rejectWithValue(`Failed to fetch repo: ${repoData.message}`);
+      }
       const issues: Issue[] = await fetchIssues(repoUrl);
 
       const todoIssues = issues.filter(
@@ -68,10 +70,109 @@ export const loadIssues = createAsyncThunk(
   }
 );
 
+const findContainerId = (
+  itemId: UniqueIdentifier,
+  containers: Container[]
+): UniqueIdentifier | undefined => {
+  for (const container of containers) {
+    if (container.id === itemId) return container.id;
+    if (container.items.some((item) => item.id === itemId)) return container.id;
+  }
+  return undefined;
+};
+
 const issuesSlice = createSlice({
   name: "issues",
   initialState,
-  reducers: {},
+  reducers: {
+    setActiveId: (state, action: PayloadAction<UniqueIdentifier | null>) => {
+      state.activeId = action.payload;
+    },
+
+    dragOver: (
+      state,
+      action: PayloadAction<{
+        activeId: UniqueIdentifier;
+        overId: UniqueIdentifier;
+      }>
+    ) => {
+      const { activeId, overId } = action.payload;
+
+      const activeContainerId = findContainerId(activeId, state.containers);
+      const overContainerId = findContainerId(overId, state.containers);
+      if (
+        !activeContainerId ||
+        !overContainerId ||
+        activeContainerId === overContainerId
+      )
+        return;
+
+      const activeContainer = state.containers.find(
+        (c) => c.id === activeContainerId
+      );
+      const overContainer = state.containers.find(
+        (c) => c.id === overContainerId
+      );
+
+      if (!activeContainer || !overContainer) return;
+
+      const activeIndex = activeContainer.items.findIndex(
+        (item) => item.id === activeId
+      );
+      if (activeIndex === -1) return;
+
+      const [activeItem] = activeContainer.items.splice(activeIndex, 1);
+
+      const overIndex = overContainer.items.findIndex(
+        (item) => item.id === overId
+      );
+      const insertIndex =
+        overIndex !== -1 ? overIndex + 1 : overContainer.items.length;
+
+      overContainer.items.splice(insertIndex, 0, activeItem);
+    },
+    dragEnd: (
+      state,
+      action: PayloadAction<{
+        activeId: UniqueIdentifier;
+        overId: UniqueIdentifier;
+      }>
+    ) => {
+      const { activeId, overId } = action.payload;
+
+      const activeContainerId = findContainerId(activeId, state.containers);
+      const overContainerId = findContainerId(overId, state.containers);
+
+      if (
+        !activeContainerId ||
+        !overContainerId ||
+        activeContainerId !== overContainerId
+      ) {
+        state.activeId = null;
+        return;
+      }
+
+      const container = state.containers.find(
+        (c) => c.id === activeContainerId
+      );
+      if (!container) {
+        state.activeId = null;
+        return;
+      }
+
+      const activeIndex = container.items.findIndex(
+        (item) => item.id === activeId
+      );
+      const overIndex = container.items.findIndex((item) => item.id === overId);
+      if (activeIndex === -1 || overIndex === -1) {
+        state.activeId = null;
+        return;
+      }
+
+      container.items = arrayMove(container.items, activeIndex, overIndex);
+      state.activeId = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loadIssues.pending, (state) => {
@@ -82,20 +183,21 @@ const issuesSlice = createSlice({
         loadIssues.fulfilled,
         (
           state,
-          action: PayloadAction<{ repo: Repo; containers: Container[] }>
+          action: PayloadAction<{
+            repo: IssuesState["repo"];
+            containers: Container[];
+          }>
         ) => {
           state.loading = false;
-          state.repo = action.payload.repo; 
+          state.repo = action.payload.repo;
           state.containers = action.payload.containers;
         }
       )
       .addCase(loadIssues.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-
-      
+      });
   },
 });
-
+export const { setActiveId, dragOver, dragEnd } = issuesSlice.actions;
 export default issuesSlice.reducer;
