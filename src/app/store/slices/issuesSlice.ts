@@ -17,7 +17,6 @@ interface IssuesState {
   activeId: UniqueIdentifier | null;
 }
 
-// Початковий стан
 const initialState: IssuesState = {
   repo: null,
   containers: [],
@@ -26,7 +25,6 @@ const initialState: IssuesState = {
   activeId: null,
 };
 
-// Async Thunk для завантаження issues
 export const loadIssues = createAsyncThunk(
   "issues/loadIssues",
   async (repoUrl: string, { rejectWithValue }) => {

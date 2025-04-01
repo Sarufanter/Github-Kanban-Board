@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import {
   DndContext,
   DragCancelEvent,
@@ -8,25 +8,22 @@ import {
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
-} from '@dnd-kit/core'
-import {
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable'
-import DroppableContainer from './DroppableContainer';
-import  ItemOverlay  from './IssueOverlay';
-import IssueLoader from './IssueLoader'
-import RepoHeader from './RepoHeader'
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store/store';
-import { dragEnd, dragOver, setActiveId } from '../store/slices/issuesSlice';
+} from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import DroppableContainer from "./DroppableContainer";
+import ItemOverlay from "./IssueOverlay";
+import IssueLoader from "./IssueLoader";
+import RepoHeader from "./RepoHeader";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/store";
+import { dragEnd, dragOver, setActiveId } from "../store/slices/issuesSlice";
 
+import ThemeToggle from "./ToggleTheme";
 
 export default function KanbanBoard() {
-
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>();
   const { containers, loading, error } = useSelector(
     (state: RootState) => state.issues
   );
@@ -42,32 +39,32 @@ export default function KanbanBoard() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
+    })
+  );
   function handleDragStart(event: DragStartEvent) {
-    dispatch(setActiveId((event.active.id)))
+    dispatch(setActiveId(event.active.id));
   }
 
   function handleDragCancel(event: DragCancelEvent) {
-    void event
-    dispatch(setActiveId(null))
+    void event;
+    dispatch(setActiveId(null));
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event    
+    const { active, over } = event;
     if (active && over) {
-    dispatch(dragOver({ activeId: active.id, overId: over.id }));
+      dispatch(dragOver({ activeId: active.id, overId: over.id }));
     }
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
+    const { active, over } = event;
     if (!over) {
-      dispatch(setActiveId(null))
-      return
+      dispatch(setActiveId(null));
+      return;
     }
     if (event.active && event.over) {
-    dispatch(dragEnd({ activeId: active.id, overId: over.id}));
+      dispatch(dragEnd({ activeId: active.id, overId: over.id }));
     }
   }
   const getActiveIssue = () => {
@@ -79,10 +76,14 @@ export default function KanbanBoard() {
   };
 
   return (
-    <div className="mx-auto max-w-[1400px] py-8 bg-white">
-      <h2 className="mb-4 text-xl font-bold dark:text-white">Kanban Board</h2>
-      
-      <IssueLoader/>
+    <div className="mx-auto my-4 py-4 bg-gray-100 flex flex-col gap-4 px-6 dark:bg-gray-700 max-w-6xl rounded-2xl shadow-lg">
+      <div className="flex justify-between">
+        <h2 className="my-1 text-3xl font-bold dark:text-white">
+          Kanban Board
+        </h2>
+        <ThemeToggle />
+      </div>
+      <IssueLoader />
       <RepoHeader />
       <DndContext
         sensors={sensors}
@@ -91,7 +92,7 @@ export default function KanbanBoard() {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid gap-4 md:grid-cols-3 p-6 text-center">
+        <div className="grid gap-4 md:grid-cols-3 h-[610px] ">
           {containers.map((container) => (
             <DroppableContainer
               key={container.id}
@@ -104,14 +105,12 @@ export default function KanbanBoard() {
         <DragOverlay
           dropAnimation={{
             duration: 150,
-            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22',
+            easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22",
           }}
         >
-          {activeId ? (
-            <ItemOverlay issue={getActiveIssue()} />
-          ) : null}
+          {activeId ? <ItemOverlay issue={getActiveIssue()} /> : null}
         </DragOverlay>
       </DndContext>
     </div>
-  )
+  );
 }
