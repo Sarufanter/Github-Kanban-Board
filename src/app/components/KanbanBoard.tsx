@@ -90,7 +90,7 @@ export default function KanbanBoard() {
       {error && (
         <>
           <div className="text-center text-red-500 font-bold">
-            Error: {error}{" "}
+            Error: {error}
           </div>
         </>
       )}

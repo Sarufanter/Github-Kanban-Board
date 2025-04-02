@@ -24,6 +24,7 @@ const initialState: IssuesState = {
   error: null,
   activeId: null,
 };
+
 export const loadIssues = createAsyncThunk(
   "issues/loadIssues",
   async (repoUrl: string, { rejectWithValue }) => {
@@ -48,7 +49,7 @@ export const loadIssues = createAsyncThunk(
       );
       const doneIssues = issues.filter((issue) => issue.state === "closed");
 
-      return {
+      const newState = {
         repo: {
           owner: repoData.owner,
           name: repoData.name,
@@ -61,9 +62,10 @@ export const loadIssues = createAsyncThunk(
           { id: "done", title: "Done", items: doneIssues },
         ],
       };
+      return newState;
     } catch (err) {
       console.error(err);
-      return rejectWithValue("Failed to fetch issues");  
+      return rejectWithValue("Failed to fetch issues");
     }
   }
 );
@@ -169,6 +171,13 @@ const issuesSlice = createSlice({
 
       container.items = arrayMove(container.items, activeIndex, overIndex);
       state.activeId = null;
+
+      if (state.repo) {
+        localStorage.setItem(
+          `issues_${state.repo.owner.login}_${state.repo.name}`,
+          JSON.stringify(state.containers)
+        );
+      }
     },
   },
   extraReducers: (builder) => {
@@ -188,8 +197,44 @@ const issuesSlice = createSlice({
         ) => {
           state.loading = false;
           state.repo = action.payload.repo;
-          state.containers = action.payload.containers;
-        }
+
+          const repoKey = `issues_${action.payload.repo?.owner.login}_${action.payload.repo?.name}`;
+    const storedContainers = localStorage.getItem(repoKey);
+    let mergedContainers = action.payload.containers;
+
+    if (storedContainers) {
+      const savedContainers: Container[] = JSON.parse(storedContainers);
+
+      // Отримуємо всі існуючі issueId у збережених контейнерах
+      const existingIssueIds = new Set(
+        savedContainers.flatMap((container) => container.items.map((i) => i.id))
+      );
+
+      // Оновлення списку issues: додаємо тільки ті, яких ще немає у будь-якій колонці
+      mergedContainers = savedContainers.map((savedContainer) => {
+        const freshContainer = action.payload.containers.find(
+          (c) => c.id === savedContainer.id
+        );
+
+        if (!freshContainer) return savedContainer; // Якщо колонка була видалена, зберігаємо стару
+
+        // Додаємо лише нові issues, які ще не присутні в жодній колонці
+        const newIssues = freshContainer.items.filter(
+          (issue) => !existingIssueIds.has(issue.id)
+        );
+
+        return {
+          ...savedContainer,
+          items: [...savedContainer.items, ...newIssues], // Додаємо лише унікальні нові issues
+        };
+      });
+    }
+
+    state.containers = mergedContainers;
+
+    // Оновлюємо localStorage після об'єднання
+    localStorage.setItem(repoKey, JSON.stringify(mergedContainers));
+  }
       )
       .addCase(loadIssues.rejected, (state, action) => {
         state.loading = false;
