@@ -24,7 +24,6 @@ const initialState: IssuesState = {
   error: null,
   activeId: null,
 };
-
 export const loadIssues = createAsyncThunk(
   "issues/loadIssues",
   async (repoUrl: string, { rejectWithValue }) => {
@@ -62,8 +61,9 @@ export const loadIssues = createAsyncThunk(
           { id: "done", title: "Done", items: doneIssues },
         ],
       };
-    } catch (error) {
-      return rejectWithValue("Failed to fetch issues");
+    } catch (err) {
+      console.error(err);
+      return rejectWithValue("Failed to fetch issues");  
     }
   }
 );

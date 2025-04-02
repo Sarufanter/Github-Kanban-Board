@@ -1,4 +1,5 @@
 import { Issue } from "../types/types";
+import React from "react";
 
 export default function IssueOverlay({ issue }: { issue: Issue | null }) {
   if (!issue) return null;

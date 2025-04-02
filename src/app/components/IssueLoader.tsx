@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store/store";
 import { loadIssues } from "../store/slices/issuesSlice";
+import React from "react";
 
 const IssueLoader = () => {
   const [repoUrl, setRepoUrl] = useState("");

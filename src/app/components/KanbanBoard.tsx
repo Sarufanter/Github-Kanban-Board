@@ -19,7 +19,7 @@ import RepoHeader from "./RepoHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
 import { dragEnd, dragOver, setActiveId } from "../store/slices/issuesSlice";
-
+import React from "react";
 import ThemeToggle from "./ToggleTheme";
 
 export default function KanbanBoard() {
@@ -84,33 +84,48 @@ export default function KanbanBoard() {
         <ThemeToggle />
       </div>
       <IssueLoader />
-      <RepoHeader />
-      <DndContext
-        sensors={sensors}
-        onDragCancel={handleDragCancel}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid gap-4 md:grid-cols-3 h-[610px] ">
-          {containers.map((container) => (
-            <DroppableContainer
-              key={container.id}
-              id={container.id}
-              title={container.title}
-              items={container.items}
-            />
-          ))}
-        </div>
-        <DragOverlay
-          dropAnimation={{
-            duration: 150,
-            easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22",
-          }}
-        >
-          {activeId ? <ItemOverlay issue={getActiveIssue()} /> : null}
-        </DragOverlay>
-      </DndContext>
+      {loading && (
+        <div className="text-center text-xl font-bold">Loading issues...</div>
+      )}
+      {error && (
+        <>
+          <div className="text-center text-red-500 font-bold">
+            Error: {error}{" "}
+          </div>
+        </>
+      )}
+
+      {!loading && !error && (
+        <>
+          <RepoHeader />
+          <DndContext
+            sensors={sensors}
+            onDragCancel={handleDragCancel}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="grid gap-4 md:grid-cols-3 h-[610px] ">
+              {containers.map((container) => (
+                <DroppableContainer
+                  key={container.id}
+                  id={container.id}
+                  title={container.title}
+                  items={container.items}
+                />
+              ))}
+            </div>
+            <DragOverlay
+              dropAnimation={{
+                duration: 150,
+                easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22",
+              }}
+            >
+              {activeId ? <ItemOverlay issue={getActiveIssue()} /> : null}
+            </DragOverlay>
+          </DndContext>
+        </>
+      )}
     </div>
   );
 }

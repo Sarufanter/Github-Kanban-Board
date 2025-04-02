@@ -2,7 +2,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import IssueCard from "./IssueCard";
 import { useDroppable } from "@dnd-kit/core";
 import { Issue } from "../types/types";
-
+import React from "react";
 export default function DroppableContainer({ id, title, items }: { id: string | number; title: string; items: Issue[] }) {
   const { setNodeRef, isOver } = useDroppable({ id });
 

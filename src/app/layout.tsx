@@ -3,7 +3,7 @@ import "./globals.css";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { ThemeProvider } from "next-themes";
-
+import React from "react";
 
 export default function RootLayout({
   children,

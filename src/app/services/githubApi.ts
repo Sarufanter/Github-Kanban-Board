@@ -7,9 +7,7 @@ export const fetchIssues = async (repoUrl: string) => {
     if (!match) {
       throw new Error("Invalid GitHub repository URL");
     }
-    const [_, repoOwner, repoName] = match;
-
-    
+    const [, repoOwner, repoName] = match;    
 
     const response = await axios.get(
       `${GITHUB_API_URL}/repos/${repoOwner}/${repoName}/issues`, {

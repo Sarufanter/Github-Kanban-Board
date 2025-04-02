@@ -2,6 +2,7 @@
 
 import { RootState } from "../store/store";
 import { useSelector } from "react-redux";
+import React from "react";
 
 const RepoHeader = () => {
   const repo = useSelector((state: RootState) => state.issues.repo);
