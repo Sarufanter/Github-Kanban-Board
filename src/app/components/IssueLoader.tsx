@@ -8,7 +8,7 @@ const IssueLoader = () => {
   const [repoUrl, setRepoUrl] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const repo = useSelector((state: RootState) => state.issues.repo);
-  const { loading, error } = useSelector((state: RootState) => state.issues); // Отримуємо loading і error з глобального стану
+  const { loading, error } = useSelector((state: RootState) => state.issues); 
 
   const handleLoadIssues = () => {
     if (repoUrl.trim() === "") return;

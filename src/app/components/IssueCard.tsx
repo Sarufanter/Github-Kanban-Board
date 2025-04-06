@@ -2,6 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Issue } from "../types/types";
 import React from "react";
+
 export default function IssueCard({ issue }: { issue: Issue }) {
   const {
     attributes,

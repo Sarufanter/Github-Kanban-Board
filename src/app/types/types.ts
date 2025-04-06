@@ -1,3 +1,5 @@
+import { UniqueIdentifier } from "@dnd-kit/core";
+
 interface GitHubUser {
   login: string;
   avatar_url: string;
@@ -26,4 +28,16 @@ export interface Repo {
   name: string;
   html_url: string;
   stargazers_count: number;
+}
+export interface IssuesState {
+  repo: {
+    owner: { login: string; html_url: string };
+    name: string;
+    html_url: string;
+    stargazers_count: number;
+  } | null;
+  containers: Container[];
+  loading: boolean;
+  error: string | null;
+  activeId: UniqueIdentifier | null;
 }

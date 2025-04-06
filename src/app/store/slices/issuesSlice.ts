@@ -1,21 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchIssues } from "../../services/githubApi";
-import { Issue, Container } from "../../types/types";
+import { Issue, Container, IssuesState } from "../../types/types";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-interface IssuesState {
-  repo: {
-    owner: { login: string; html_url: string };
-    name: string;
-    html_url: string;
-    stargazers_count: number;
-  } | null;
-  containers: Container[];
-  loading: boolean;
-  error: string | null;
-  activeId: UniqueIdentifier | null;
-}
 
 const initialState: IssuesState = {
   repo: null,
@@ -199,42 +187,40 @@ const issuesSlice = createSlice({
           state.repo = action.payload.repo;
 
           const repoKey = `issues_${action.payload.repo?.owner.login}_${action.payload.repo?.name}`;
-    const storedContainers = localStorage.getItem(repoKey);
-    let mergedContainers = action.payload.containers;
+          const storedContainers = localStorage.getItem(repoKey);
+          let mergedContainers = action.payload.containers;
 
-    if (storedContainers) {
-      const savedContainers: Container[] = JSON.parse(storedContainers);
+          if (storedContainers) {
+            const savedContainers: Container[] = JSON.parse(storedContainers);
 
-      // Отримуємо всі існуючі issueId у збережених контейнерах
-      const existingIssueIds = new Set(
-        savedContainers.flatMap((container) => container.items.map((i) => i.id))
-      );
+            const existingIssueIds = new Set(
+              savedContainers.flatMap((container) =>
+                container.items.map((i) => i.id)
+              )
+            );
 
-      // Оновлення списку issues: додаємо тільки ті, яких ще немає у будь-якій колонці
-      mergedContainers = savedContainers.map((savedContainer) => {
-        const freshContainer = action.payload.containers.find(
-          (c) => c.id === savedContainer.id
-        );
+            mergedContainers = savedContainers.map((savedContainer) => {
+              const freshContainer = action.payload.containers.find(
+                (c) => c.id === savedContainer.id
+              );
 
-        if (!freshContainer) return savedContainer; // Якщо колонка була видалена, зберігаємо стару
+              if (!freshContainer) return savedContainer; 
 
-        // Додаємо лише нові issues, які ще не присутні в жодній колонці
-        const newIssues = freshContainer.items.filter(
-          (issue) => !existingIssueIds.has(issue.id)
-        );
+              const newIssues = freshContainer.items.filter(
+                (issue) => !existingIssueIds.has(issue.id)
+              );
 
-        return {
-          ...savedContainer,
-          items: [...savedContainer.items, ...newIssues], // Додаємо лише унікальні нові issues
-        };
-      });
-    }
+              return {
+                ...savedContainer,
+                items: [...savedContainer.items, ...newIssues], 
+              };
+            });
+          }
 
-    state.containers = mergedContainers;
-
-    // Оновлюємо localStorage після об'єднання
-    localStorage.setItem(repoKey, JSON.stringify(mergedContainers));
-  }
+          state.containers = mergedContainers;
+          
+          localStorage.setItem(repoKey, JSON.stringify(mergedContainers));
+        }
       )
       .addCase(loadIssues.rejected, (state, action) => {
         state.loading = false;
