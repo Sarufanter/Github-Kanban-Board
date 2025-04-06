@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitHub Kanban Board
 
-## Getting Started
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-blue)](https://github-kanban-board-omega.vercel.app/)
 
-First, run the development server:
+GitHub Kanban Board is a web application that allows you to view and manage GitHub Issues in a Kanban board format. The app provides a convenient interface for dragging and dropping issues between columns that represent their status.
 
+## Features
+
+- 🎯 View GitHub Issues in Kanban board format
+- 🖱️ Drag-and-drop functionality for changing issue status
+- 🌙 Light and dark theme support
+- 💾 Persistent state between sessions for each repository
+- 🔗 Links to repository and owner profiles
+- 🔍 Filter issues by status
+- 📱 Responsive design
+- ⚡ Fast performance thanks to optimization
+
+## Technologies
+
+- [Next.js](https://nextjs.org/) - React framework
+- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Redux Toolkit](https://redux-toolkit.js.org/) - State management
+- [@dnd-kit](https://dnd-kit.com/) - Drag-and-drop library
+- [GitHub API](https://docs.github.com/en/rest) - For fetching issues data
+- [Axios](https://axios-http.com/) - For API requests
+- [Vitest](https://vitest.dev/) - Testing framework
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v14 or higher)
+- [pnpm](https://pnpm.io/) or [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+## Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Sarufanter/Github-Kanban-Board.git
+cd Github-Kanban-Board
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. Enter GitHub repository URL in the format: `owner/repo`
+2. Click the "Load Issues" button
+3. View issues organized in three columns:
+   - 📋 **ToDo**: New issues without an assignee
+   - 🔄 **In Progress**: Open issues with an assignee
+   - ✅ **Done**: Closed issues
+4. Drag and drop issues between columns to change their status
+5. The state of the board is saved automatically and will be restored when you load the same repository again
+6. Toggle theme using the button in the top right corner
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── components/     # React components
+│   ├── store/         # Redux store and slices
+│   ├── services/      # API services
+│   └── types/         # TypeScript types
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project is automatically deployed to [Vercel](https://vercel.com/) when pushing to the `main` branch.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT
+
+## Author
+
+[Oleh](https://github.com/Sarufanter)
+
+## Acknowledgments
+
+Thank you for checking out the project! If you have any suggestions for improvements or find a bug, please create an issue or pull request.
