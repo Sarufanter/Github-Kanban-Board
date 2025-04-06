@@ -15,6 +15,14 @@ GitHub Kanban Board is a web application that allows you to view and manage GitH
 - 📱 Responsive design
 - ⚡ Fast performance thanks to optimization
 
+## Screenshots
+
+### Light Theme
+![Light Theme](https://github.com/Sarufanter/Github-Kanban-Board/raw/main/public/screenshots/light-theme.png)
+
+### Dark Theme
+![Dark Theme](https://github.com/Sarufanter/Github-Kanban-Board/raw/main/public/screenshots/dark-theme.png)
+
 ## Technologies
 
 - [Next.js](https://nextjs.org/) - React framework
@@ -78,13 +86,9 @@ src/
 
 The project is automatically deployed to [Vercel](https://vercel.com/) when pushing to the `main` branch.
 
-## License
-
-MIT
-
 ## Author
 
-[Oleh](https://github.com/Sarufanter)
+[Oleh_Savkiv](https://github.com/Sarufanter)
 
 ## Acknowledgments
 

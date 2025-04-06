@@ -5,7 +5,7 @@ import reducer, {
   dragOver,
   dragEnd,
 } from "../app/store/slices/issuesSlice";
-import { IssuesState, Container, Issue } from "../app/types/types";
+import { IssuesState } from "../app/types/types";
 import  {createMockIssue}  from "./test-utils";
 
 const mockState: IssuesState = {

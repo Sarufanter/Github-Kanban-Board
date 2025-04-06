@@ -30,7 +30,7 @@ export default function IssueCard({ issue }: { issue: Issue }) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`relative cursor-grab select-none rounded-2xl border border-gray-300 bg-white p-4 shadow-sm transition-all duration-200 active:cursor-grabbing dark:border-gray-600 dark:bg-gray-700 ${
+      className={`relative cursor-grab rounded-2xl border border-gray-300 bg-white p-4 shadow-sm transition-all duration-200 active:cursor-grabbing dark:border-gray-600 dark:bg-gray-700 ${
         isDragging ? "scale-105 shadow-md opacity-50" : "hover:shadow-lg"
       }`}
     >

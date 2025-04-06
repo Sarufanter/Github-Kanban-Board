@@ -8,6 +8,7 @@ import {
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -31,6 +32,12 @@ export default function KanbanBoard() {
   const activeId = useSelector((state: RootState) => state.issues.activeId);
 
   const sensors = useSensors(
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 10,
+      },
+    }),
     useSensor(PointerSensor, {
       activationConstraint: {
         delay: 100,
@@ -76,7 +83,7 @@ export default function KanbanBoard() {
   };
 
   return (
-    <div className="mx-auto my-4 py-4 bg-gray-100 flex flex-col gap-4 px-6 dark:bg-gray-700 max-w-6xl rounded-2xl shadow-lg">
+    <div className="touch-none mx-auto my-4 py-4 bg-gray-100 flex flex-col gap-4 px-6 dark:bg-gray-700 max-w-6xl rounded-2xl shadow-lg">
       <div className="flex justify-between">
         <h2 className="my-1 text-3xl font-bold dark:text-white">
           Kanban Board
